@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新進員工加保通知書</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',Arial,sans-serif;background:#f5f5f5;color:#222;font-size:15px}
+.wrap{max-width:680px;margin:0 auto;padding:20px 16px 40px}
+h1{text-align:center;font-size:19px;font-weight:600;margin-bottom:20px;letter-spacing:2px;color:#111}
+.card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.slabel{font-size:12px;font-weight:600;color:#888;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #eee;text-transform:uppercase;letter-spacing:1px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:480px){.g2,.g3{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.f:last-child{margin-bottom:0}
+.f label{font-size:12px;color:#666;font-weight:500}
+.f input,.f select{font-size:14px;padding:8px 10px;border:1px solid #ccc;border-radius:7px;background:#fff;color:#222;width:100%;-webkit-appearance:none}
+.f input:focus,.f select:focus{outline:none;border-color:#555}
+.req{color:#c00}
+.rg{display:flex;gap:20px;align-items:center;padding:6px 0}
+.rg label{font-size:14px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.rg input[type=radio]{width:17px;height:17px;cursor:pointer}
+.warn{background:#fff5f5;border:1px solid #fcc;border-radius:7px;padding:10px 14px;font-size:13px;color:#c00;margin-top:8px}
+.ubox{border:2px dashed #ccc;border-radius:8px;padding:14px;text-align:center;cursor:pointer;background:#fafafa;margin-bottom:10px}
+.ubox:hover{border-color:#888}
+.ubox input[type=file]{display:none}
+.ulabel{font-size:13px;color:#666;display:block;cursor:pointer}
+.uicon{font-size:26px;display:block;margin-bottom:4px}
+.uprv{width:100%;max-height:160px;object-fit:contain;border-radius:6px;display:none;margin-top:8px;background:#f0f0f0}
+.add-btn{font-size:13px;color:#0066cc;background:none;border:1px dashed #0066cc;border-radius:7px;padding:7px 14px;cursor:pointer;width:100%;margin-top:6px}
+.rm-btn{background:none;border:none;color:#c00;cursor:pointer;font-size:20px;padding:0 4px;line-height:1}
+.sub-btn{width:100%;padding:13px;font-size:16px;font-weight:600;background:#222;color:#fff;border:none;border-radius:8px;cursor:pointer;margin-top:6px}
+.sub-btn:hover{background:#444}
+.hidden{display:none}
+.loading-bar{text-align:center;padding:40px;color:#888;font-size:14px}
+
+/* 通知書 */
+.notice-wrap{max-width:680px;margin:0 auto;padding:20px 16px 40px}
+.nc{background:#fff;border:2px solid #333;padding:18px 20px;font-family:Arial,sans-serif;color:#111}
+.nt{text-align:center;font-size:18px;font-weight:700;letter-spacing:3px;margin-bottom:14px}
+.ntbl{width:100%;border-collapse:collapse;margin-bottom:8px}
+.ntbl td,.ntbl th{border:1px solid #555;padding:6px 8px;font-size:13px;vertical-align:middle;word-break:break-word}
+.ntbl .lb{background:#f0f0f0;font-weight:600;font-size:12px;white-space:nowrap;width:70px}
+@media(max-width:480px){.ntbl td,.ntbl th{font-size:12px;padding:5px 6px}.ntbl .lb{font-size:11px;width:60px}}
+.nsec{font-size:12px;font-weight:600;color:#333;margin:10px 0 6px;border-left:3px solid #333;padding-left:7px}
+.nimgrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.nimgsingle{margin-bottom:8px}
+.nimgbox{border:1px solid #aaa;border-radius:4px;overflow:hidden;background:#f9f9f9;display:flex;align-items:center;justify-content:center;min-height:120px}
+.nimgbox img{display:block;width:100%;height:auto;max-height:200px;object-fit:contain}
+.nimgcap{font-size:11px;color:#666;text-align:center;margin-top:3px}
+.nfooter{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:12px;margin-top:10px;padding-top:8px;border-top:1px solid #ccc}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media(max-width:380px){.btn-row{grid-template-columns:1fr}}
+.dl-btn{padding:12px;font-size:14px;font-weight:600;background:#222;color:#fff;border:none;border-radius:8px;cursor:pointer}
+.dl-btn:hover{background:#444}
+.back-btn{padding:12px;font-size:14px;border:1px solid #ccc;background:#fff;border-radius:8px;cursor:pointer;color:#555}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="formSection">
+  <h1>新進員工　加保通知書</h1>
+  <div id="loadingBar" class="loading-bar">載入選項中...</div>
+  <div id="formBody" class="hidden">
+
+    <div class="card">
+      <div class="slabel">基本資料</div>
+      <div class="g3">
+        <div class="f"><label>員工姓名 <span class="req">*</span></label><input type="text" id="f_name" placeholder="請輸入姓名"></div>
+        <div class="f"><label>到職日 <span class="req">*</span></label><input type="date" id="f_date"></div>
+        <div class="f"><label>加保館別 <span class="req">*</span></label><select id="f_branch"><option value="">請選擇</option></select></div>
+      </div>
+      <div class="g3">
+        <div class="f"><label>職稱 <span class="req">*</span></label><input type="text" id="f_title" placeholder="請輸入職稱"></div>
+        <div class="f"><label>班別 <span class="req">*</span></label><select id="f_shift" onchange="togShift()"><option value="">請選擇</option></select></div>
+        <div class="f"><label>休假天數 <span class="req">*</span></label><select id="f_leave" onchange="togLeave()"><option value="">請選擇</option></select></div>
+      </div>
+      <div class="hidden" id="shiftOW"><div class="f"><label>班別說明 <span class="req">*</span></label><input type="text" id="f_shift_other" placeholder="請說明"></div></div>
+      <div class="hidden" id="leaveOW"><div class="f"><label>休假天數說明 <span class="req">*</span></label><input type="text" id="f_leave_other" placeholder="請說明"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="slabel">薪資方式</div>
+      <div class="rg">
+        <label><input type="radio" name="salary" value="monthly" onchange="togSalary()"> 月薪</label>
+        <label><input type="radio" name="salary" value="hourly" onchange="togSalary()"> 時薪實習</label>
+      </div>
+      <div class="hidden" id="monthlyW" style="margin-top:8px">
+        <div class="f" style="max-width:220px"><label>月薪金額 <span class="req">*</span></label><input type="number" id="f_monthly" placeholder="請輸入金額"></div>
+      </div>
+      <div class="hidden" id="hourlyW" style="margin-top:8px">
+        <div class="g2" style="margin-bottom:8px">
+          <div class="f"><label>實習開始日 <span class="req">*</span></label><input type="date" id="f_intern_start"></div>
+          <div class="f"><label>實習結束日 <span class="req">*</span></label><input type="date" id="f_intern_end"></div>
+        </div>
+        <div class="g2">
+          <div class="f"><label>實習期間時薪 <span class="req">*</span></label><input type="number" id="f_hourly" placeholder="時薪金額"></div>
+          <div class="f"><label>結束後月薪 <span class="req">*</span></label><input type="number" id="f_post_salary" placeholder="月薪金額"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="slabel">勞動契約</div>
+      <div style="font-size:14px;margin-bottom:4px">是否簽妥勞動契約？<span class="req">*</span></div>
+      <div class="rg">
+        <label><input type="radio" name="contract" value="yes" onchange="togContract()"> 是</label>
+        <label><input type="radio" name="contract" value="no" onchange="togContract()"> 否</label>
+      </div>
+      <div class="warn hidden" id="contractWarn">⚠️ 無身份證、未簽妥勞動契約不錄用、不加保</div>
+    </div>
+
+    <div class="card">
+      <div class="slabel">眷屬加保</div>
+      <div style="font-size:14px;margin-bottom:4px">是否申請眷屬加保？</div>
+      <div class="rg">
+        <label><input type="radio" name="dep" value="no" onchange="togDep()" checked> 否</label>
+        <label><input type="radio" name="dep" value="yes" onchange="togDep()"> 是</label>
+      </div>
+      <div class="hidden" id="depWrap" style="margin-top:10px">
+        <div class="dep-header-desktop" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:4px">
+          <div style="font-size:11px;color:#999">姓名</div><div style="font-size:11px;color:#999">關係</div>
+          <div style="font-size:11px;color:#999">生日</div><div style="font-size:11px;color:#999">身份證號</div><div></div>
+        </div>
+        <div id="depRows"></div>
+        <button class="add-btn" onclick="addDep()">＋ 新增眷屬</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="slabel">證件上傳</div>
+      <div class="ubox" onclick="document.getElementById('u_front').click()">
+        <label class="ulabel"><span class="uicon">📷</span>身份證正面 <span class="req">*</span></label>
+        <input type="file" id="u_front" accept="image/*" onchange="loadPreview(this,'prev_front')">
+        <img id="prev_front" class="uprv">
+      </div>
+      <div class="ubox" onclick="document.getElementById('u_back').click()">
+        <label class="ulabel"><span class="uicon">📷</span>身份證反面 <span class="req">*</span></label>
+        <input type="file" id="u_back" accept="image/*" onchange="loadPreview(this,'prev_back')">
+        <img id="prev_back" class="uprv">
+      </div>
+      <div class="ubox" onclick="document.getElementById('u_id2').click()">
+        <label class="ulabel"><span class="uicon">📎</span>第二證件（選填）</label>
+        <input type="file" id="u_id2" accept="image/*" onchange="loadPreview(this,'prev_id2')">
+        <img id="prev_id2" class="uprv">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="slabel">承辦主管</div>
+      <div class="f" style="max-width:250px"><label>承辦主管姓名 <span class="req">*</span></label><input type="text" id="f_manager" placeholder="請輸入姓名"></div>
+    </div>
+
+    <button class="sub-btn" onclick="submitForm()">送出通知書</button>
+  </div>
+</div>
+
+<div class="notice-wrap hidden" id="noticeSection">
+  <div class="nc" id="noticeCard">
+    <div class="nt">新進員工　加保通知書</div>
+    <table class="ntbl">
+      <tr><td class="lb">員工姓名</td><td id="n_name"></td><td class="lb">到職日</td><td id="n_date"></td><td class="lb">加保館別</td><td id="n_branch"></td></tr>
+      <tr><td class="lb">職稱</td><td id="n_title"></td><td class="lb">班別</td><td id="n_shift"></td><td class="lb">休假天數</td><td id="n_leave"></td></tr>
+      <tr><td class="lb">薪資方式</td><td colspan="5" id="n_salary"></td></tr>
+    </table>
+    <table class="ntbl">
+      <tr><td class="lb" style="width:72px">勞動契約</td><td id="n_contract"></td></tr>
+      <tr><td class="lb">眷屬加保</td><td id="n_dep_label"></td></tr>
+    </table>
+    <div id="n_dep_table"></div>
+    <div class="nsec">證件</div>
+    <div class="nimgrow">
+      <div><div class="nimgbox" id="n_front"></div><div class="nimgcap">身份證正面</div></div>
+      <div><div class="nimgbox" id="n_back"></div><div class="nimgcap">身份證反面</div></div>
+    </div>
+    <div class="nimgsingle hidden" id="n_id2_wrap">
+      <div class="nimgbox" id="n_id2"></div>
+      <div class="nimgcap">第二證件</div>
+    </div>
+    <div class="nfooter">
+      <div>承辦主管：<strong id="n_manager"></strong></div>
+      <div>通知日期：<span id="n_datetime"></span></div>
+    </div>
+  </div>
+  <div id="successMsg" style="background:#e6f9ee;border:1.5px solid #4caf50;border-radius:8px;padding:13px 16px;margin-bottom:12px;font-size:14px;color:#1a7a3a;font-weight:500;text-align:center">
+    通知書已送出！此通知書內容請截圖或下載PDF備存。
+  </div>
+  <div style="margin-top:12px">
+    <button class="dl-btn" id="dlBtn" onclick="downloadPDF()" style="width:100%">⬇ 下載PDF</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJfz5H66Sojd1hpgtjZS0auLbWF4hpdF3asgMdbjd5bi5savvgmNPjbK5HJLqnaiEO/exec';
+
+// ── 載入選項 ──
+function loadOptions(){
+  fetch(SCRIPT_URL)
+    .then(function(r){return r.json()})
+    .then(function(data){renderOptions(data)})
+    .catch(function(){
+      renderOptions({
+        branches:['叙美','涪美','星美','俞美','柔美','碩美','尚美','昇美','峻美'],
+        shifts:['打卡9小時','其他'],
+        leaves:['月休8～12天','其他']
+      });
+    });
+}
+function renderOptions(data){
+  function fill(id,items){
+    var sel=document.getElementById(id);
+    items.forEach(function(v){var o=document.createElement('option');o.value=v==='其他'?'other':v;o.textContent=v;sel.appendChild(o)});
+  }
+  fill('f_branch',data.branches);
+  fill('f_shift',data.shifts);
+  fill('f_leave',data.leaves);
+  document.getElementById('loadingBar').classList.add('hidden');
+  document.getElementById('formBody').classList.remove('hidden');
+}
+loadOptions();
+
+// ── 表單互動 ──
+function togShift(){document.getElementById('shiftOW').classList.toggle('hidden',document.getElementById('f_shift').value!=='other')}
+function togLeave(){document.getElementById('leaveOW').classList.toggle('hidden',document.getElementById('f_leave').value!=='other')}
+function togSalary(){var v=document.querySelector('input[name=salary]:checked');document.getElementById('monthlyW').classList.toggle('hidden',!v||v.value!=='monthly');document.getElementById('hourlyW').classList.toggle('hidden',!v||v.value!=='hourly')}
+function togContract(){var v=document.querySelector('input[name=contract]:checked');document.getElementById('contractWarn').classList.toggle('hidden',!v||v.value!=='no')}
+function togDep(){var v=document.querySelector('input[name=dep]:checked');var s=v&&v.value==='yes';document.getElementById('depWrap').classList.toggle('hidden',!s);if(s&&!document.getElementById('depRows').children.length)addDep()}
+var dc=0;
+function addDep(){
+  dc++;var id=dc;
+  var isMobile=window.innerWidth<=600;
+  var row=document.createElement('div');
+  row.id='dr_'+id;
+  var s='font-size:13px;padding:7px 8px;border:1px solid #ccc;border-radius:6px;background:#fff;width:100%';
+  if(isMobile){
+    row.style.cssText='border:1px solid #eee;border-radius:8px;padding:10px;margin-bottom:10px;background:#fafafa';
+    row.innerHTML=''
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+      +'<span style="font-size:13px;font-weight:500;color:#555">眷屬 '+id+'</span>'
+      +'<button onclick="rmDep(\'dr_'+id+'\');" style="background:none;border:none;color:#c00;cursor:pointer;font-size:13px">× 移除</button>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:8px">'
+      +'<div><div style="font-size:11px;color:#999;margin-bottom:3px">姓名</div><input type="text" placeholder="請輸入姓名" style="'+s+'"></div>'
+      +'<div><div style="font-size:11px;color:#999;margin-bottom:3px">關係</div><input type="text" placeholder="如：配偶、子女" style="'+s+'"></div>'
+      +'<div><div style="font-size:11px;color:#999;margin-bottom:3px">生日</div><input type="date" style="'+s+'"></div>'
+      +'<div><div style="font-size:11px;color:#999;margin-bottom:3px">身份證號</div><input type="text" placeholder="請輸入身份證號" style="'+s+'"></div>'
+      +'</div>';
+  } else {
+    row.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:8px;align-items:center';
+    row.innerHTML='<input type="text" placeholder="姓名" style="'+s+'"><input type="text" placeholder="關係" style="'+s+'"><input type="date" style="'+s+'"><input type="text" placeholder="身份證號" style="'+s+'"><button class="rm-btn" onclick="rmDep(\'dr_'+id+'\');" aria-label="移除">×</button>';
+  }
+  document.getElementById('depRows').appendChild(row);
+}
+function rmDep(id){var el=document.getElementById(id);if(el)el.remove()}
+
+// ── EXIF 轉正（核心邏輯）──
+function getExifOrientation(file,cb){
+  var r=new FileReader();
+  r.onload=function(e){
+    var view=new DataView(e.target.result);
+    if(view.getUint16(0,false)!==0xFFD8){cb(1);return}
+    var len=view.byteLength,off=2;
+    while(off<len){
+      var marker=view.getUint16(off,false);off+=2;
+      if(marker===0xFFE1){
+        if(view.getUint32(off+2,false)!==0x45786966){cb(1);return}
+        var little=view.getUint16(off+8,false)===0x4949;
+        var ifdOff=off+8+view.getUint32(off+12,little);
+        var tags=view.getUint16(ifdOff,little);
+        for(var i=0;i<tags;i++){
+          if(view.getUint16(ifdOff+2+i*12,little)===0x0112){
+            cb(view.getUint16(ifdOff+2+i*12+8,little));return;
+          }
+        }
+        cb(1);return;
+      }
+      if((marker&0xFF00)!==0xFF00)break;
+      off+=view.getUint16(off,false);
+    }
+    cb(1);
+  };
+  r.readAsArrayBuffer(file.slice(0,65536));
+}
+
+function applyOrientation(img,orientation,maxPx){
+  var w=img.width,h=img.height;
+  // 壓縮但保持清晰：最長邊不超過 maxPx
+  var ratio=Math.min(maxPx/Math.max(w,h),1);
+  var canvas=document.createElement('canvas');
+  var ctx=canvas.getContext('2d');
+  if(orientation>=5&&orientation<=8){canvas.width=Math.round(h*ratio);canvas.height=Math.round(w*ratio)}
+  else{canvas.width=Math.round(w*ratio);canvas.height=Math.round(h*ratio)}
+  ctx.save();
+  switch(orientation){
+    case 2:ctx.transform(-1,0,0,1,canvas.width,0);break;
+    case 3:ctx.transform(-1,0,0,-1,canvas.width,canvas.height);break;
+    case 4:ctx.transform(1,0,0,-1,0,canvas.height);break;
+    case 5:ctx.transform(0,1,1,0,0,0);break;
+    case 6:ctx.transform(0,1,-1,0,canvas.height,0);break;
+    case 7:ctx.transform(0,-1,-1,0,canvas.height,canvas.width);break;
+    case 8:ctx.transform(0,-1,1,0,0,canvas.width);break;
+  }
+  // 縮放後繪製
+  if(orientation>=5&&orientation<=8){ctx.scale(ratio,ratio)}
+  else{ctx.scale(ratio,ratio)}
+  ctx.drawImage(img,0,0);
+  ctx.restore();
+  return canvas;
+}
+
+function fileToOrientedDataURL(file,maxPx,quality,cb){
+  getExifOrientation(file,function(orientation){
+    var fr=new FileReader();
+    fr.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var canvas=applyOrientation(img,orientation,maxPx);
+        cb(canvas.toDataURL('image/jpeg',quality),canvas.width,canvas.height);
+      };
+      img.src=e.target.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+// 填寫介面預覽用（螢幕顯示，適中解析度）
+function loadPreview(input,prevId){
+  var prev=document.getElementById(prevId);
+  if(input.files&&input.files[0]){
+    fileToOrientedDataURL(input.files[0],1200,0.85,function(dataURL){
+      prev.src=dataURL;prev.style.display='block';
+    });
+  }
+}
+
+// 通知書圖片（用 img 標籤顯示，保持完整）
+function renderImg(dataURL,boxId){
+  var box=document.getElementById(boxId);
+  box.innerHTML='';
+  if(!dataURL){box.innerHTML='<span style="font-size:12px;color:#bbb;padding:16px">未上傳</span>';return}
+  var img=document.createElement('img');
+  img.src=dataURL;
+  img.style.cssText='display:block;width:100%;height:auto;max-height:200px;object-fit:contain';
+  box.appendChild(img);
+}
+
+var imgCache={front:null,back:null,id2:null};
+var formData={};
+
+function fmtDate(val){if(!val)return'';var p=val.split('-');return p[0]+'年'+p[1]+'月'+p[2]+'日'}
+function pad(n){return String(n).padStart(2,'0')}
+
+function submitForm(){
+  var name=document.getElementById('f_name').value.trim();
+  var date=document.getElementById('f_date').value;
+  var branch=document.getElementById('f_branch').value;
+  var title=document.getElementById('f_title').value.trim();
+  var shiftSel=document.getElementById('f_shift').value;
+  var shift=shiftSel==='other'?document.getElementById('f_shift_other').value.trim():shiftSel;
+  var leaveSel=document.getElementById('f_leave').value;
+  var leave=leaveSel==='other'?document.getElementById('f_leave_other').value.trim():leaveSel;
+  var salR=document.querySelector('input[name=salary]:checked');
+  var conR=document.querySelector('input[name=contract]:checked');
+  var manager=document.getElementById('f_manager').value.trim();
+
+  if(!name||!date||!branch||!title||!shiftSel||!leaveSel||!salR||!conR||!manager){alert('請填寫所有必填欄位');return}
+  if(salR.value==='monthly'&&!document.getElementById('f_monthly').value){alert('請填寫月薪金額');return}
+  if(salR.value==='hourly'){
+    if(!document.getElementById('f_intern_start').value||!document.getElementById('f_intern_end').value||!document.getElementById('f_hourly').value||!document.getElementById('f_post_salary').value){alert('請填寫所有時薪實習相關欄位');return}
+  }
+  if(!document.getElementById('u_front').files.length||!document.getElementById('u_back').files.length){alert('請上傳身份證正面及反面');return}
+
+  var salText=salR.value==='monthly'
+    ?'月薪　$'+Number(document.getElementById('f_monthly').value).toLocaleString()+' 元'
+    :'時薪實習　$'+Number(document.getElementById('f_hourly').value).toLocaleString()+' 元／小時'
+      +'　（'+fmtDate(document.getElementById('f_intern_start').value)+' ～ '+fmtDate(document.getElementById('f_intern_end').value)+'）'
+      +'　｜　結束後月薪 $'+Number(document.getElementById('f_post_salary').value).toLocaleString()+' 元';
+
+  // 收集眷屬資料
+  var depR=document.querySelector('input[name=dep]:checked');
+  var isDep=depR&&depR.value==='yes';
+  var depList=[];
+  if(isDep){
+    document.querySelectorAll('#depRows > div').forEach(function(r){
+      var ins=r.querySelectorAll('input');
+      if(ins[0].value){depList.push({name:ins[0].value,rel:ins[1].value,birth:fmtDate(ins[2].value),id:ins[3].value})}
+    });
+  }
+
+  var now=new Date();
+  var datetimeStr=now.getFullYear()+'年'+pad(now.getMonth()+1)+'月'+pad(now.getDate())+'日　'+pad(now.getHours())+'點'+pad(now.getMinutes())+'分';
+
+  // 存表單資料
+  formData={name,date,branch,title,shift,leave,salary:salText,contract:conR.value,isDep,depList,manager,datetime:datetimeStr};
+
+  // 填入通知書
+  document.getElementById('n_name').textContent=name;
+  document.getElementById('n_date').textContent=fmtDate(date);
+  document.getElementById('n_branch').textContent=branch;
+  document.getElementById('n_title').textContent=title;
+  document.getElementById('n_shift').textContent=shift;
+  document.getElementById('n_leave').textContent=leave;
+  document.getElementById('n_salary').textContent=salText;
+  document.getElementById('n_contract').textContent=conR.value==='yes'?'■ 是':'■ 否';
+  document.getElementById('n_dep_label').textContent=isDep?'■ 是':'■ 否';
+
+  var depHTML='';
+  if(isDep&&depList.length){
+    depHTML='<table class="ntbl" style="margin-top:8px"><thead><tr style="background:#f0f0f0"><th>眷屬姓名</th><th>關係</th><th>生日</th><th>身份證號</th></tr></thead><tbody>';
+    depList.forEach(function(d){depHTML+='<tr><td>'+d.name+'</td><td>'+d.rel+'</td><td>'+d.birth+'</td><td>'+d.id+'</td></tr>'});
+    depHTML+='</tbody></table>';
+  }
+  document.getElementById('n_dep_table').innerHTML=depHTML;
+  document.getElementById('n_manager').textContent=manager;
+  document.getElementById('n_datetime').textContent=datetimeStr;
+
+  // 處理圖片（通知書顯示用：1600px, 品質0.88）
+  imgCache={front:null,back:null,id2:null};
+  var frontFile=document.getElementById('u_front').files[0];
+  var backFile=document.getElementById('u_back').files[0];
+  var id2File=document.getElementById('u_id2').files[0];
+  var total=id2File?3:2,loaded=0;
+
+  function checkDone(){
+    loaded++;
+    if(loaded===total){
+      renderImg(imgCache.front,'n_front');
+      renderImg(imgCache.back,'n_back');
+      if(imgCache.id2){document.getElementById('n_id2_wrap').classList.remove('hidden');renderImg(imgCache.id2,'n_id2')}
+      else{document.getElementById('n_id2_wrap').classList.add('hidden')}
+      // 送到 Google Sheets
+      sendToSheets();
+    }
+  }
+  fileToOrientedDataURL(frontFile,1600,0.88,function(d){imgCache.front=d;checkDone()});
+  fileToOrientedDataURL(backFile,1600,0.88,function(d){imgCache.back=d;checkDone()});
+  if(id2File){fileToOrientedDataURL(id2File,1600,0.88,function(d){imgCache.id2=d;checkDone()})}
+
+  document.getElementById('formSection').classList.add('hidden');
+  document.getElementById('noticeSection').classList.remove('hidden');
+}
+
+function sendToSheets(){
+  if(!SCRIPT_URL)return;
+  var payload=Object.assign({},formData,{
+    frontImg:imgCache.front,
+    backImg:imgCache.back,
+    id2Img:imgCache.id2||''
+  });
+  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)})
+    .catch(function(e){console.log('送出失敗',e)});
+}
+
+function goBack(){
+  document.getElementById('noticeSection').classList.add('hidden');
+  document.getElementById('formSection').classList.remove('hidden');
+}
+
+// ── 下載PDF（html2canvas）──
+function downloadPDF(){
+  var btn=document.getElementById('dlBtn');
+  btn.textContent='產生中，請稍候...';btn.disabled=true;
+
+  var name=formData.name||'通知書';
+  var dateStr=(formData.date||'').replace(/-/g,'');
+  var fname='加保通知書_'+name+'_'+dateStr+'.pdf';
+
+  var card=document.getElementById('noticeCard');
+  var cardW=card.offsetWidth;
+
+  html2canvas(card,{
+    scale:2,
+    useCORS:true,
+    allowTaint:true,
+    backgroundColor:'#ffffff',
+    width:cardW,
+    windowWidth:cardW+40
+  }).then(function(canvas){
+    // 不縮放，直接用原始 canvas 尺寸計算 mm
+    // 96dpi → 1px = 0.264583mm
+    var pxToMm=0.264583/2; // scale:2 所以除2
+    var mmW=canvas.width*pxToMm;
+    var mmH=canvas.height*pxToMm;
+
+    var imgData=canvas.toDataURL('image/jpeg',0.92);
+
+    var s=document.createElement('script');
+    s.src='https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
+    s.onload=function(){
+      var jsPDF=window.jspdf.jsPDF;
+      var doc=new jsPDF({orientation:'portrait',unit:'mm',format:[mmW,mmH]});
+      doc.addImage(imgData,'JPEG',0,0,mmW,mmH);
+      doc.save(fname);
+      btn.textContent='⬇ 下載PDF';btn.disabled=false;
+    };
+    s.onerror=function(){
+      var win=window.open('');
+      win.document.write('<html><head><title>'+fname+'</title></head><body style="margin:0">');
+      win.document.write('<img src="'+imgData+'" style="width:100%;display:block">');
+      win.document.write('</body></html>');
+      btn.textContent='⬇ 下載PDF';btn.disabled=false;
+    };
+    document.head.appendChild(s);
+  }).catch(function(e){
+    alert('PDF產生失敗，請截圖代替。');
+    btn.textContent='⬇ 下載PDF';btn.disabled=false;
+  });
+}
+</script>
+</body>
+</html>
