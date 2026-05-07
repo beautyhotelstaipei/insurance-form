@@ -121,7 +121,7 @@ h1{text-align:center;font-size:19px;font-weight:600;margin-bottom:20px;letter-sp
         <label><input type="radio" name="dep" value="yes" onchange="togDep()"> 是</label>
       </div>
       <div class="hidden" id="depWrap" style="margin-top:10px">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:4px">
+        <div class="dep-header-desktop" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:4px">
           <div style="font-size:11px;color:#999">姓名</div><div style="font-size:11px;color:#999">關係</div>
           <div style="font-size:11px;color:#999">生日</div><div style="font-size:11px;color:#999">身份證號</div><div></div>
         </div>
@@ -186,7 +186,7 @@ h1{text-align:center;font-size:19px;font-weight:600;margin-bottom:20px;letter-sp
     </div>
   </div>
   <div id="successMsg" style="background:#e6f9ee;border:1.5px solid #4caf50;border-radius:8px;padding:13px 16px;margin-bottom:12px;font-size:14px;color:#1a7a3a;font-weight:500;text-align:center">
-    ✅ 通知書已送出！以下為通知書內容，請截圖或下載PDF備存。
+    通知書已送出！此通知書內容請截圖或下載PDF備存。
   </div>
   <div style="margin-top:12px">
     <button class="dl-btn" id="dlBtn" onclick="downloadPDF()" style="width:100%">⬇ 下載PDF</button>
@@ -231,11 +231,28 @@ function togContract(){var v=document.querySelector('input[name=contract]:checke
 function togDep(){var v=document.querySelector('input[name=dep]:checked');var s=v&&v.value==='yes';document.getElementById('depWrap').classList.toggle('hidden',!s);if(s&&!document.getElementById('depRows').children.length)addDep()}
 var dc=0;
 function addDep(){
-  dc++;var id=dc;var row=document.createElement('div');
-  row.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:8px;align-items:center';
+  dc++;var id=dc;
+  var isMobile=window.innerWidth<=600;
+  var row=document.createElement('div');
   row.id='dr_'+id;
   var s='font-size:13px;padding:7px 8px;border:1px solid #ccc;border-radius:6px;background:#fff;width:100%';
-  row.innerHTML='<input type="text" placeholder="姓名" style="'+s+'"><input type="text" placeholder="關係" style="'+s+'"><input type="date" style="'+s+'"><input type="text" placeholder="身份證號" style="'+s+'"><button class="rm-btn" onclick="rmDep(\'dr_'+id+'\')" aria-label="移除">×</button>';
+  if(isMobile){
+    row.style.cssText='border:1px solid #eee;border-radius:8px;padding:10px;margin-bottom:10px;background:#fafafa';
+    row.innerHTML=''
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+      +'<span style="font-size:13px;font-weight:500;color:#555">眷屬 '+id+'</span>'
+      +'<button onclick="rmDep(\'dr_'+id+'\');" style="background:none;border:none;color:#c00;cursor:pointer;font-size:13px">× 移除</button>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:8px">'
+      +'<div><div style="font-size:11px;color:#999;margin-bottom:3px">姓名</div><input type="text" placeholder="請輸入姓名" style="'+s+'"></div>'
+      +'<div><div style="font-size:11px;color:#999;margin-bottom:3px">關係</div><input type="text" placeholder="如：配偶、子女" style="'+s+'"></div>'
+      +'<div><div style="font-size:11px;color:#999;margin-bottom:3px">生日</div><input type="date" style="'+s+'"></div>'
+      +'<div><div style="font-size:11px;color:#999;margin-bottom:3px">身份證號</div><input type="text" placeholder="請輸入身份證號" style="'+s+'"></div>'
+      +'</div>';
+  } else {
+    row.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr 1fr 36px;gap:6px;margin-bottom:8px;align-items:center';
+    row.innerHTML='<input type="text" placeholder="姓名" style="'+s+'"><input type="text" placeholder="關係" style="'+s+'"><input type="date" style="'+s+'"><input type="text" placeholder="身份證號" style="'+s+'"><button class="rm-btn" onclick="rmDep(\'dr_'+id+'\');" aria-label="移除">×</button>';
+  }
   document.getElementById('depRows').appendChild(row);
 }
 function rmDep(id){var el=document.getElementById(id);if(el)el.remove()}
@@ -452,48 +469,38 @@ function downloadPDF(){
   var dateStr=(formData.date||'').replace(/-/g,'');
   var fname='加保通知書_'+name+'_'+dateStr+'.pdf';
 
-  html2canvas(document.getElementById('noticeCard'),{
+  var card=document.getElementById('noticeCard');
+  var cardW=card.offsetWidth;
+
+  html2canvas(card,{
     scale:2,
     useCORS:true,
     allowTaint:true,
-    backgroundColor:'#ffffff'
+    backgroundColor:'#ffffff',
+    width:cardW,
+    windowWidth:cardW+40
   }).then(function(canvas){
+    // 不縮放，直接用原始 canvas 尺寸計算 mm
+    // 96dpi → 1px = 0.264583mm
+    var pxToMm=0.264583/2; // scale:2 所以除2
+    var mmW=canvas.width*pxToMm;
+    var mmH=canvas.height*pxToMm;
+
     var imgData=canvas.toDataURL('image/jpeg',0.92);
-    var imgW=canvas.width;
-    var imgH=canvas.height;
 
-    // A4 尺寸 (px at 96dpi): 794 x 1123
-    var a4W=794;
-    var a4H=Math.round(imgH*(a4W/imgW));
-
-    // 建立隱藏 canvas 縮放到 A4 寬
-    var a4Canvas=document.createElement('canvas');
-    a4Canvas.width=a4W;
-    a4Canvas.height=a4H;
-    var ctx=a4Canvas.getContext('2d');
-    ctx.fillStyle='#ffffff';
-    ctx.fillRect(0,0,a4W,a4H);
-    ctx.drawImage(canvas,0,0,a4W,a4H);
-    var finalData=a4Canvas.toDataURL('image/jpeg',0.92);
-
-    // 用 jsPDF 把圖片包成 PDF
-    // 動態載入 jsPDF
     var s=document.createElement('script');
     s.src='https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
     s.onload=function(){
       var jsPDF=window.jspdf.jsPDF;
-      var mmW=210;
-      var mmH=Math.round(a4H*(mmW/a4W)*0.264583); // px to mm
-      var doc=new jsPDF({orientation:mmH>mmW?'portrait':'landscape',unit:'mm',format:[mmW,mmH]});
-      doc.addImage(finalData,'JPEG',0,0,mmW,mmH);
+      var doc=new jsPDF({orientation:'portrait',unit:'mm',format:[mmW,mmH]});
+      doc.addImage(imgData,'JPEG',0,0,mmW,mmH);
       doc.save(fname);
       btn.textContent='⬇ 下載PDF';btn.disabled=false;
     };
     s.onerror=function(){
-      // fallback: 開新分頁顯示圖片讓用戶自存
       var win=window.open('');
       win.document.write('<html><head><title>'+fname+'</title></head><body style="margin:0">');
-      win.document.write('<img src="'+finalData+'" style="width:100%;display:block">');
+      win.document.write('<img src="'+imgData+'" style="width:100%;display:block">');
       win.document.write('</body></html>');
       btn.textContent='⬇ 下載PDF';btn.disabled=false;
     };
