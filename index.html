@@ -186,10 +186,11 @@ h1{text-align:center;font-size:19px;font-weight:600;margin-bottom:20px;letter-sp
     </div>
   </div>
   <div id="successMsg" style="background:#e6f9ee;border:1.5px solid #4caf50;border-radius:8px;padding:13px 16px;margin-bottom:12px;font-size:14px;color:#1a7a3a;font-weight:500;text-align:center">
-    通知書已送出！此通知書內容請截圖或下載PDF備存。
+    通知書已送出！請點下方按鈕下載備存。<br>
+    <span id="iosHint" style="display:none;font-size:12px;color:#555;font-weight:400">iPhone 用戶：開啟圖片後，長按→儲存到「照片」</span>
   </div>
   <div style="margin-top:12px">
-    <button class="dl-btn" id="dlBtn" onclick="downloadPDF()" style="width:100%">⬇ 下載PDF</button>
+    <button class="dl-btn" id="dlBtn" onclick="downloadPDF()" style="width:100%">⬇ 下載</button>
   </div>
 </div>
 
@@ -460,54 +461,76 @@ function goBack(){
   document.getElementById('formSection').classList.remove('hidden');
 }
 
-// ── 下載PDF（html2canvas）──
+// ── 下載（電腦→PDF，手機→圖片）──
 function downloadPDF(){
   var btn=document.getElementById('dlBtn');
   btn.textContent='產生中，請稍候...';btn.disabled=true;
 
   var name=formData.name||'通知書';
   var dateStr=(formData.date||'').replace(/-/g,'');
-  var fname='加保通知書_'+name+'_'+dateStr+'.pdf';
-
   var card=document.getElementById('noticeCard');
-  var cardW=card.offsetWidth;
+  var isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  var isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // 顯示 iOS 提示
+  if(isIOS) document.getElementById('iosHint').style.display='inline';
 
   html2canvas(card,{
     scale:2,
     useCORS:true,
     allowTaint:true,
     backgroundColor:'#ffffff',
-    width:cardW,
-    windowWidth:cardW+40
+    scrollY:-window.scrollY
   }).then(function(canvas){
-    // 不縮放，直接用原始 canvas 尺寸計算 mm
-    // 96dpi → 1px = 0.264583mm
-    var pxToMm=0.264583/2; // scale:2 所以除2
-    var mmW=canvas.width*pxToMm;
-    var mmH=canvas.height*pxToMm;
-
     var imgData=canvas.toDataURL('image/jpeg',0.92);
 
-    var s=document.createElement('script');
-    s.src='https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
-    s.onload=function(){
-      var jsPDF=window.jspdf.jsPDF;
-      var doc=new jsPDF({orientation:'portrait',unit:'mm',format:[mmW,mmH]});
-      doc.addImage(imgData,'JPEG',0,0,mmW,mmH);
-      doc.save(fname);
-      btn.textContent='⬇ 下載PDF';btn.disabled=false;
-    };
-    s.onerror=function(){
-      var win=window.open('');
-      win.document.write('<html><head><title>'+fname+'</title></head><body style="margin:0">');
-      win.document.write('<img src="'+imgData+'" style="width:100%;display:block">');
-      win.document.write('</body></html>');
-      btn.textContent='⬇ 下載PDF';btn.disabled=false;
-    };
-    document.head.appendChild(s);
+    if(isMobile){
+      // 手機：輸出圖片
+      var fname='加保通知書_'+name+'_'+dateStr+'.jpg';
+      if(isIOS){
+        // iOS：開新分頁，長按儲存
+        var win=window.open('');
+        win.document.write('<html><head><title>'+fname+'</title>'
+          +'<meta name="viewport" content="width=device-width,initial-scale=1"></head>'
+          +'<body style="margin:0;background:#111;display:flex;flex-direction:column;align-items:center;min-height:100vh">'
+          +'<p style="color:#fff;font-size:14px;padding:14px;text-align:center;margin:0">長按圖片 → 儲存到「照片」</p>'
+          +'<img src="'+imgData+'" style="width:100%;display:block">'
+          +'</body></html>');
+      } else {
+        // Android：直接下載
+        var a=document.createElement('a');
+        a.href=imgData;
+        a.download=fname;
+        a.click();
+      }
+      btn.textContent='⬇ 下載';btn.disabled=false;
+    } else {
+      // 電腦：輸出PDF
+      var fname='加保通知書_'+name+'_'+dateStr+'.pdf';
+      var pxToMm=0.264583/2;
+      var mmW=canvas.width*pxToMm;
+      var mmH=canvas.height*pxToMm;
+      var s=document.createElement('script');
+      s.src='https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
+      s.onload=function(){
+        var jsPDF=window.jspdf.jsPDF;
+        var doc=new jsPDF({orientation:'portrait',unit:'mm',format:[mmW,mmH]});
+        doc.addImage(imgData,'JPEG',0,0,mmW,mmH);
+        doc.save(fname);
+        btn.textContent='⬇ 下載PDF';btn.disabled=false;
+      };
+      s.onerror=function(){
+        var win=window.open('');
+        win.document.write('<html><head><title>'+fname+'</title></head><body style="margin:0">');
+        win.document.write('<img src="'+imgData+'" style="width:100%;display:block">');
+        win.document.write('</body></html>');
+        btn.textContent='⬇ 下載PDF';btn.disabled=false;
+      };
+      document.head.appendChild(s);
+    }
   }).catch(function(e){
-    alert('PDF產生失敗，請截圖代替。');
-    btn.textContent='⬇ 下載PDF';btn.disabled=false;
+    alert('產生失敗，請截圖代替。');
+    btn.textContent='⬇ 下載';btn.disabled=false;
   });
 }
 </script>
